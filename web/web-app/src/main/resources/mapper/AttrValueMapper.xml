@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.lease.web.app.mapper.AttrValueMapper">
+
+    <select id="selectVoByRoomId" resultType="com.atguigu.lease.web.app.vo.attr.AttrValueVo">
+        select av.id,
+               av.name,
+               av.attr_key_id,
+               attr_key.name attr_key_name
+        from attr_value av
+                 left join attr_key on av.attr_key_id = attr_key.id and attr_key.is_deleted = 0
+        where av.id in
+        (select attr_value_id
+         from room_attr_value
+         where room_id = #{id}
+           and is_deleted = 0)
+        and av.is_deleted = 0
+    </select>
+</mapper>

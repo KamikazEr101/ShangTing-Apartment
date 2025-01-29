@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.lease.web.admin.mapper.ApartmentInfoMapper">
+
+    <select id="pageApartmentItemVoByQuery"
+            resultType="com.atguigu.lease.web.admin.vo.apartment.ApartmentItemVo">
+
+        select id,
+               name,
+               introduction,
+               district_id,
+               district_name,
+               city_id,
+               city_name,
+               province_id,
+               province_name,
+               address_detail,
+               latitude,
+               longitude,
+               phone,
+               is_release,
+               ifnull(tr.total_room_count, 0) total_room_count,
+               ifnull(tr.total_room_count, 0) - ifnull(ci.rented_room, 0) free_room_count
+        from (select id,
+                     name,
+                     introduction,
+                     district_id,
+                     district_name,
+                     city_id,
+                     city_name,
+                     province_id,
+                     province_name,
+                     address_detail,
+                     latitude,
+                     longitude,
+                     phone,
+                     is_release
+              from apartment_info
+            <where>
+                is_deleted=0
+                <if test="queryVo.districtId!=null">
+                    and district_id = #{queryVo.districtId}
+                </if>
+                <if test="queryVo.provinceId!=null">
+                    and district_id = #{queryVo.provinceId}
+                </if>
+                <if test="queryVo.cityId!=null">
+                    and district_id = #{queryVo.cityId}
+                </if>
+            </where>) ai
+                 left join
+             (select apartment_id,
+                     count(1) total_room_count
+              from room_info
+              where is_deleted = 0
+                and is_release = 1
+              group by apartment_id) tr
+             on tr.apartment_id = ai.id
+                 left join
+             (select apartment_id,
+                     count(1) rented_room
+              from lease_agreement
+              where status in (2, 5)
+                and is_deleted = 0
+              group by apartment_id) ci
+             on ci.apartment_id = ai.id
+    </select>
+
+</mapper>
