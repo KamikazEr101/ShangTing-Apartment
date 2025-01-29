@@ -30,5 +30,3 @@ mybatis-plus:
 
 springdoc:
   default-flat-param-object: true
-
-#aliyunSms需自己配置
